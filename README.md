@@ -17,7 +17,9 @@ and start editing. I've done that and provided LightSm.jest.test.js,
 which is how I imagine a user might go about testing this particular
 state machine.
 
-Setup instructions are in the test file, but tldr `npm test`.
+Setup instructions are in the test file, but tldr run these commands:
+* `npm install` - only needed once to install required packages
+* `npm test` - to run the tests
 
 In this example I added "jest" to the file names. It's a bit verbose and
 maybe we don't want to do that, but I did it to suggest that we could
