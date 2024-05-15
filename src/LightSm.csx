@@ -38,6 +38,9 @@ void PrintSmInfo(StateMachine sm)
     Console.WriteLine($"");
 
 
+    // TODO is it a valid assumption to assume that every state machine has at least two vertices?
+    // TODO is it a valid assumption to assume that the zeroth vertex is the entry vertex, and the 
+    //      next vertex is the next reachable state from the vertex? Probably not.
     NamedVertex firstState = sm.GetNamedVerticesCopy()[1];
     Console.WriteLine($"test('starts in the {firstState.Name} state', () => {{");
     Console.WriteLine($"    const sm = new {sm.Name}();");
