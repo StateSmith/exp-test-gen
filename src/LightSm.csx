@@ -37,6 +37,11 @@ void PrintSmInfo(StateMachine sm)
     Console.WriteLine($"import {{ {sm.Name} }} from './{sm.Name}.js';");
     Console.WriteLine($"");
 
+    // beforeEach
+    Console.WriteLine($"beforeEach(() => {{");
+    Console.WriteLine($"    jest.clearAllMocks();" );
+    Console.WriteLine($"}});");
+    Console.WriteLine($"");
 
     // TODO is it a valid assumption to assume that every state machine has at least two vertices?
     // TODO is it a valid assumption to assume that the zeroth vertex is the entry vertex, and the 
