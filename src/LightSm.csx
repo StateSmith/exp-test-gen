@@ -17,16 +17,16 @@ runner.Run();
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-Console.WriteLine("Diagram accesses these variables: ");
-foreach (var varAttempt in trackingExpander.AttemptedVariableExpansions)
-{
-    Console.WriteLine($"  {varAttempt}");
-}
+// Console.WriteLine("Diagram accesses these variables: ");
+// foreach (var varAttempt in trackingExpander.AttemptedVariableExpansions)
+// {
+//     Console.WriteLine($"  {varAttempt}");
+// }
 
-Console.WriteLine("Diagram accesses these functions: ");
+// Console.WriteLine("Diagram accesses these functions: ");
 foreach (var funcAttempt in trackingExpander.AttemptedFunctionExpansions)
 {
-    Console.WriteLine($"  {funcAttempt}");
+    Console.WriteLine($"globalThis.{funcAttempt} = jest.fn();");
 }
 
 Console.WriteLine();
