@@ -31,50 +31,25 @@ void PrintSmInfo(StateMachine sm)
     BehaviorDescriber describer = new(singleLineFormat: true);
 
     InitialState rootInitialState = sm.ChildType<InitialState>();
-    Console.WriteLine($"Root initial state behaviors:");
-    PrintBehaviors(rootInitialState, describer);
+
+    // Imports
+    Console.WriteLine($"import {{jest}} from '@jest/globals';");
+    Console.WriteLine($"import {{ {sm.Name} }} from './{sm.Name}.js';");
     Console.WriteLine($"");
 
-    // The below code will visit all states in the state machine.
-    // A more complete solution would also visit pseudo states like initial, choice, enter and exit points.
-    // Let's start simple for now and ignore pseudo states.
-    sm.VisitTypeRecursively((State state) =>
-    {
-        Console.WriteLine($"State {state.Name} behaviors:");
-        // could use name to generate a test function name
 
-        PrintBehaviors(state, describer);
-        Console.WriteLine("");
-    });
-}
+    NamedVertex firstState = sm.GetNamedVerticesCopy()[1];
+    Console.WriteLine($"test('starts in the {firstState.Name} state', () => {{");
+    Console.WriteLine($"    const sm = new {sm.Name}();");
+    Console.WriteLine($"    sm.start();");
+    Console.WriteLine($"    expect(sm.stateId).toBe({sm.Name}.StateId.{firstState.Name});" );
+    Console.WriteLine($"}});");
 
-// Note that this function takes a vertex, which is a base class for states and pseudo states.
-static void PrintBehaviors(Vertex vertex, BehaviorDescriber describer)
-{
-    foreach (var behavior in vertex.Behaviors)
-    {
-        // To learn how to inspect a behavior for transitions, guards, ...
-        // see https://github.com/StateSmith/StateSmith/blob/41d7b6bb663dac3d99c0223a15dda3638cd21548/src/StateSmith/SmGraph/BehaviorDescriber.cs#L8
-        Console.WriteLine("    " + describer.Describe(behavior));
-    }
+    Console.WriteLine($"");
+
 }
 
 
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// NOTHING NOTABLE BELOW THIS LINE
-/////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-// This class gives StateSmith the info it needs to generate working C code.
-// It adds user code to the generated .c/.h files, declares user variables,
-// and provides diagram code expansions. This class can have any name.
 public class LightSmRenderConfig : IRenderConfigJavaScript
 {
     bool IRenderConfigJavaScript.UseExportOnClass => true;
