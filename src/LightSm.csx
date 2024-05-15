@@ -1,17 +1,35 @@
 #!/usr/bin/env dotnet-script
 // This is a c# script file
 
-#r "nuget: StateSmith, 0.9.12-alpha" // this line specifies which version of StateSmith to use and download from c# nuget web service.
+#r "nuget: StateSmith, 0.9.13-alpha-tracking-expander-2" // this line specifies which version of StateSmith to use and download from c# nuget web service.
 
 using StateSmith.Input.Expansions;
 using StateSmith.Output.UserConfig;
 using StateSmith.Runner;
 using StateSmith.SmGraph;  // Note using! This is required to access StateMachine and NamedVertex classes...
 
+var trackingExpander = new TrackingExpander();
+
 SmRunner runner = new(diagramPath: "LightSm.drawio.svg", new LightSmRenderConfig(), transpilerId: TranspilerId.JavaScript);
+runner.GetExperimentalAccess().DiServiceProvider.AddSingletonT<IExpander>(trackingExpander); // must be done before AddPipelineStep();
 AddPipelineStep();
 runner.Run();
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+Console.WriteLine("Diagram accesses these variables: ");
+foreach (var varAttempt in trackingExpander.AttemptedVariableExpansions)
+{
+    Console.WriteLine($"  {varAttempt}");
+}
+
+Console.WriteLine("Diagram accesses these functions: ");
+foreach (var funcAttempt in trackingExpander.AttemptedFunctionExpansions)
+{
+    Console.WriteLine($"  {funcAttempt}");
+}
+
+Console.WriteLine();
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +72,6 @@ void PrintSmInfo(StateMachine sm)
     Console.WriteLine($"}});");
 
     Console.WriteLine($"");
-
 }
 
 
