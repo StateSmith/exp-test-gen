@@ -8,30 +8,26 @@ using StateSmith.Output.UserConfig;
 using StateSmith.Runner;
 using StateSmith.SmGraph;  // Note using! This is required to access StateMachine and NamedVertex classes...
 
-var trackingExpander = new TrackingExpander();
+public StringBuilder imports = new();
+public StringBuilder mocks = new();
+public StringBuilder tests = new();
 
+
+var trackingExpander = new TrackingExpander();
 SmRunner runner = new(diagramPath: "LightSm.drawio.svg", new LightSmRenderConfig(), transpilerId: TranspilerId.JavaScript);
 runner.GetExperimentalAccess().DiServiceProvider.AddSingletonT<IExpander>(trackingExpander); // must be done before AddPipelineStep();
 AddPipelineStep();
 runner.Run();
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-// Console.WriteLine("Diagram accesses these variables: ");
-// foreach (var varAttempt in trackingExpander.AttemptedVariableExpansions)
-// {
-//     Console.WriteLine($"  {varAttempt}");
-// }
-
-// Console.WriteLine("Diagram accesses these functions: ");
 foreach (var funcAttempt in trackingExpander.AttemptedFunctionExpansions)
 {
-    Console.WriteLine($"globalThis.{funcAttempt} = jest.fn();");
+    mocks.Append($"globalThis.{funcAttempt} = jest.fn();\n");
 }
 
-Console.WriteLine();
+Console.WriteLine(imports.ToString());
+Console.WriteLine(mocks.ToString());
+Console.WriteLine(tests.ToString());
 
-/////////////////////////////////////////////////////////////////////////////////////////
 
 void AddPipelineStep()
 {
@@ -45,33 +41,29 @@ void AddPipelineStep()
 // This same idea could be used to generate test scaffolding code or to generate documentation.
 void PrintSmInfo(StateMachine sm)
 {
-    Console.WriteLine($"");
     BehaviorDescriber describer = new(singleLineFormat: true);
 
     InitialState rootInitialState = sm.ChildType<InitialState>();
 
-    // Imports
-    Console.WriteLine($"import {{jest}} from '@jest/globals';");
-    Console.WriteLine($"import {{ {sm.Name} }} from './{sm.Name}.js';");
-    Console.WriteLine($"");
+    // Imports    
+    imports.Append($"import {{jest}} from '@jest/globals';\n");
+    imports.Append($"import {{ {sm.Name} }} from './{sm.Name}.js';\n");
 
     // beforeEach
-    Console.WriteLine($"beforeEach(() => {{");
-    Console.WriteLine($"    jest.clearAllMocks();" );
-    Console.WriteLine($"}});");
-    Console.WriteLine($"");
+    tests.Append($"beforeEach(() => {{\n");
+    tests.Append($"    jest.clearAllMocks();\n" );
+    tests.Append($"}});\n");
+    tests.Append("\n");
 
     // TODO is it a valid assumption to assume that every state machine has at least two vertices?
     // TODO is it a valid assumption to assume that the zeroth vertex is the entry vertex, and the 
     //      next vertex is the next reachable state from the vertex?
     NamedVertex firstState = sm.GetNamedVerticesCopy()[1];
-    Console.WriteLine($"test('starts in the {firstState.Name} state', () => {{");
-    Console.WriteLine($"    const sm = new {sm.Name}();");
-    Console.WriteLine($"    sm.start();");
-    Console.WriteLine($"    expect(sm.stateId).toBe({sm.Name}.StateId.{firstState.Name});" );
-    Console.WriteLine($"}});");
-
-    Console.WriteLine($"");
+    tests.Append($"test('starts in the {firstState.Name} state', () => {{\n");
+    tests.Append($"    const sm = new {sm.Name}();\n");
+    tests.Append($"    sm.start();\n");
+    tests.Append($"    expect(sm.stateId).toBe({sm.Name}.StateId.{firstState.Name});\n" );
+    tests.Append($"}});\n");
 }
 
 
