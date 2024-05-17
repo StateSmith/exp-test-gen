@@ -55,10 +55,8 @@ void PrintSmInfo(StateMachine sm)
     tests.Append($"}});\n");
     tests.Append("\n");
 
-    // TODO is it a valid assumption to assume that every state machine has at least two vertices?
-    // TODO is it a valid assumption to assume that the zeroth vertex is the entry vertex, and the 
-    //      next vertex is the next reachable state from the vertex?
-    NamedVertex firstState = sm.GetNamedVerticesCopy()[1];
+    // TODO this will not work in every case, but it's a start
+    NamedVertex firstState = (NamedVertex)rootInitialState.TransitionBehaviors().Single().TransitionTarget;
     tests.Append($"test('starts in the {firstState.Name} state', () => {{\n");
     tests.Append($"    const sm = new {sm.Name}();\n");
     tests.Append($"    sm.start();\n");
