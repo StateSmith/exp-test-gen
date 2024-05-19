@@ -37,17 +37,17 @@ int main(int ac, char** av)
 
 
 // Use 'state_id' to access the current state of the state machine, eg.
-// expect(sm.state_id).toBe(LightSm.StateId.OFF);
+// CHECK_EQUAL(LightSm_StateId_OFF, sm.state_id);
 //
 // Use 'vars' to access the variables of the state machine, eg.
-// expect(sm.vars.myVar).toBe(42);
+// CHECK_EQUAL(sm->vars.myVar, 42);
 //
-// Use 'dispatchEvent' to send events to the state machine, eg.
-// sm.dispatchEvent(LightSm.EventId.INCREASE);
+// Use 'dispatch_event' to send events to the state machine, eg.
+// LightSm_dispatch_event(LightSm_EventId_INCREASE, &sm);
 //
 // Use mock functions to check if the functions are called, eg.
-// expect(globalThis.println.mock.calls).toHaveLength(1);
-// See https://jestjs.io/ for more information on Jest.
+// mock().expectOneCall("println");
+// See https://cpputest.github.io/ for more information on CppUTest.
 
 TEST_GROUP(LightSmTest)
 {
