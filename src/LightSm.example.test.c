@@ -7,7 +7,7 @@
 // To run the tests:
 // - install CppUTest if you don't already have it (https://cpputest.github.io/)
 // - make a copy of this file, eg. LightSm.test.c
-// - mock any dependencies from your state machine (see below)
+// - mock any dependencies from your state machine (see ACTION REQUIRED below)
 // - compile your state machine and tests, eg.
 //   g++ LightSm.test.c LightSm.c -L/path/to/CppUTest/lib/dir -lCppUTest
 // - make the tests executable, eg.
@@ -18,11 +18,12 @@
 #include "CppUTest/CommandLineTestRunner.h"
 
 // ACTION REQUIRED
+// Create LightSm.mocks.test.h and add your mocks there.
+//
 // You must define any actions and variables used by your state machine.
 // We recommend mocking rather than importing your actual functions,
 // to keep these tests purely about testing the state machine itself.
 // (Your function implementations should also be tested, but in separate tests.)
-// Create LightSm.mocks.test.h and add your mocks there.
 #include "LightSm.mocks.test.h"
 
 #include "LightSm.h"
