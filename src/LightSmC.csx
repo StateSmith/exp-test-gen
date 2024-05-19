@@ -26,7 +26,6 @@ foreach (var funcAttempt in trackingExpander.AttemptedFunctionExpansions)
 
 using(StreamWriter exampleTestFile = new StreamWriter("LightSm.example.test.c"))
 {
-    exampleTestFile.WriteLine("writing in text file");
     exampleTestFile.Write(imports.ToString());
     exampleTestFile.WriteLine();
     // exampleTestFile.Write(mocks.ToString());
