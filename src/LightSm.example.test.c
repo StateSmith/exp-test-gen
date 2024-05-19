@@ -55,5 +55,5 @@ TEST(LightSmTest, StartsInOffState) {
     LightSm sm;
     LightSm_ctor(&sm);
     LightSm_start(&sm);
-    CHECK_EQUAL(LightSm_StateId::LightSm_StateId_OFF, sm.state_id);
+    CHECK_EQUAL(LightSm_StateId_OFF, sm.state_id);
 }
