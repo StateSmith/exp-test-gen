@@ -13,6 +13,7 @@
 // To run, type `npm test` in the terminal
 
 #include "CppUTest/TestHarness.h"
+#include "CppUTest/CommandLineTestRunner.h"
 
 // ACTION REQUIRED
 // You must define any actions and variables used by your state machine.
@@ -27,6 +28,10 @@
 
 
 
+int main(int ac, char** av)
+{
+    return CommandLineTestRunner::RunAllTests(ac, av);
+}
 
 
 // Use 'state_id' to access the current state of the state machine, eg.
