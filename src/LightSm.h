@@ -39,7 +39,7 @@ typedef struct LightSm LightSm;
 // State machine variables. Can be used for inputs, outputs, user variables...
 typedef struct LightSm_Vars
 {
-    count: 0 // variable for state machine
+    int count = 0; // variable for state machine
 } LightSm_Vars;
 
 

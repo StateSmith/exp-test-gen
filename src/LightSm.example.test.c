@@ -12,14 +12,19 @@
 //
 // To run, type `npm test` in the terminal
 
-#include "LightSm.h"
 #include "CppUTest/TestHarness.h"
 
-
-// Mock the functions used by the state machine.
+// ACTION REQUIRED
+// You must define any actions and variables used by your state machine.
 // We recommend mocking rather than importing your actual functions,
 // to keep these tests purely about testing the state machine itself.
 // (Your function implementations should also be tested, but in separate tests.)
+// Create LightSm.mocks.test.h and add your mocks there.
+#include "LightSm.mocks.test.h"
+
+#include "LightSm.h"
+
+
 
 
 
@@ -36,6 +41,10 @@
 // Use mock functions to check if the functions are called, eg.
 // expect(globalThis.println.mock.calls).toHaveLength(1);
 // See https://jestjs.io/ for more information on Jest.
+
+TEST_GROUP(LightSmTest)
+{
+};
 
 TEST(LightSmTest, StartsInOffState) {
     LightSm sm;

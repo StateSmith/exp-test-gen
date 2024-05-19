@@ -70,7 +70,7 @@ void PrintSmInfo(StateMachine sm)
 public class LightSmRenderConfig : IRenderConfigC
 {
     string IRenderConfig.AutoExpandedVars => """
-        count: 0 // variable for state machine
+        int count = 0; // variable for state machine
         """;
 
     
