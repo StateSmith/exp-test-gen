@@ -359,7 +359,7 @@ static void ON2_enter(LightSm* sm)
     // uml: enter / { count=0; }
     {
         // Step 1: execute action `count=0;`
-        count=0;
+        sm->vars.count=0;
     } // end of behavior for ON2
 }
 
@@ -401,7 +401,7 @@ static void ON2_increase(LightSm* sm)
     // uml: 1. INCREASE / { count++; }
     {
         // Step 1: execute action `count++;`
-        count++;
+        sm->vars.count++;
         
         // Step 2: determine if ancestor gets to handle event next.
         // No ancestor handles event. Can skip nulling `ancestor_event_handler`.
@@ -409,7 +409,7 @@ static void ON2_increase(LightSm* sm)
     
     // ON2 behavior
     // uml: 2. INCREASE [count >= 3] TransitionTo(ON_HOT)
-    if (count >= 3)
+    if (sm->vars.count >= 3)
     {
         // Step 1: Exit states until we reach `ON_GROUP` state (Least Common Ancestor for transition).
         ON2_exit(sm);

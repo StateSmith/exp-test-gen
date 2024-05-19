@@ -69,13 +69,19 @@ void PrintSmInfo(StateMachine sm)
 
 public class LightSmRenderConfig : IRenderConfigC
 {
+    string IRenderConfigC.HFileTop => """
+        extern void println(char const * str);
+        extern void light_red();
+        extern void light_blue();
+        extern void light_yellow();
+    """;
     string IRenderConfig.AutoExpandedVars => """
         int count = 0; // variable for state machine
         """;
 
-    
     // This nested class creates expansions. It can have any name.
     public class MyExpansions : UserExpansionScriptBase
     {
-    }
+        string count => AutoVarName(); // explained below
+   }
 }
