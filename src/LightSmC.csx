@@ -21,13 +21,13 @@ runner.Run();
 
 foreach (var funcAttempt in trackingExpander.AttemptedFunctionExpansions)
 {
-    mocks.Append($"globalThis.{funcAttempt} = jest.fn();\n");
+    // We don't output mocks in the C version    
 }
 
 Console.Write(imports.ToString());
 Console.WriteLine();
-Console.Write(mocks.ToString());
-Console.WriteLine();
+// Console.Write(mocks.ToString());
+// Console.WriteLine();
 Console.Write(tests.ToString());
 
 
@@ -48,22 +48,30 @@ void PrintSmInfo(StateMachine sm)
     InitialState rootInitialState = sm.ChildType<InitialState>();
 
     // Imports
-    imports.Append($"import {{jest}} from '@jest/globals';\n");
-    imports.Append($"import {{ {sm.Name} }} from './{sm.Name}.js';\n");
+    imports.Append($"#include \"CppUTest/CommandLineTestRunner.h\"\n");
+    imports.Append($"#include \"{sm.Name}.mocks.test.h\"\n");
+    imports.Append($"#include \"{sm.Name}.h\"\n");
 
-    // beforeEach
-    tests.Append($"beforeEach(() => {{\n");
-    tests.Append($"    jest.clearAllMocks();\n" );
-    tests.Append($"}});\n");
+    // main
+    tests.Append($"int main(int ac, char** av) {{\n");
+    tests.Append($"    return CommandLineTestRunner::RunAllTests(ac, av);\n" );
+    tests.Append($"}}\n");
+    tests.Append("\n");
+
+    // group
+    tests.Append($"TEST_GROUP({sm.Name}Test) {{\n");
+    tests.Append($"}};\n");
     tests.Append("\n");
 
     // TODO this will not work in every case, but it's a start
     NamedVertex firstState = (NamedVertex)rootInitialState.TransitionBehaviors().Single().TransitionTarget;
-    tests.Append($"test('starts in the {firstState.Name} state', () => {{\n");
-    tests.Append($"    const sm = new {sm.Name}();\n");
-    tests.Append($"    sm.start();\n");
-    tests.Append($"    expect(sm.stateId).toBe({sm.Name}.StateId.{firstState.Name});\n" );
-    tests.Append($"}});\n");
+    tests.Append($"TEST({sm.Name}Test, StartsIn{firstState.Name}State) {{\n");
+    tests.Append($"    {sm.Name} sm;\n");
+    tests.Append($"    {sm.Name}_ctor(&sm);\n");
+    tests.Append($"    {sm.Name}_start(&sm);\n");
+    tests.Append($"    CHECK_EQUAL({sm.Name}_StateId_{firstState.Name}, sm.state_id);\n" );
+    tests.Append($"}}\n");
+    tests.Append("\n");
 }
 
 
