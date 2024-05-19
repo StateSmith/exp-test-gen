@@ -24,11 +24,16 @@ foreach (var funcAttempt in trackingExpander.AttemptedFunctionExpansions)
     // We don't output mocks in the C version    
 }
 
-Console.Write(imports.ToString());
-Console.WriteLine();
-// Console.Write(mocks.ToString());
-// Console.WriteLine();
-Console.Write(tests.ToString());
+using(StreamWriter exampleTestFile = new StreamWriter("LightSm.example.test.c"))
+{
+    exampleTestFile.WriteLine("writing in text file");
+    exampleTestFile.Write(imports.ToString());
+    exampleTestFile.WriteLine();
+    // exampleTestFile.Write(mocks.ToString());
+    // exampleTestFile.WriteLine();
+    exampleTestFile.Write(tests.ToString());
+}
+
 
 
 void AddPipelineStep()
