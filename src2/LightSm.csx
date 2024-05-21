@@ -12,27 +12,86 @@ public StringBuilder imports = new();
 public StringBuilder mocks = new();
 public StringBuilder tests = new();
 
+const string smName = "LightSm"; // this would normally be detected, not hard coded.
+const string simOutputDirectory = smName + "Sim";
+private const string DiagramPath = "LightSm.drawio.svg";
 
 GenerateC99Code();
 GenerateSimpleSimulator();
 
 void GenerateC99Code()
 {
-    SmRunner runner = new(diagramPath: "LightSm.drawio.svg", new LightSmRenderConfig(), transpilerId: TranspilerId.C99);
+    SmRunner runner = new(diagramPath: DiagramPath, new LightSmRenderConfig(), transpilerId: TranspilerId.C99);
     runner.Run();
 }
 
+public class LightSmRenderConfig : IRenderConfigC
+{
+    string IRenderConfigC.HFileTop => """
+        extern void println(char const * str);
+        extern void light_red();
+        extern void light_blue();
+        extern void light_yellow();
+    """;
+    string IRenderConfig.AutoExpandedVars => """
+        int count = 0; // variable for state machine
+        """;
+
+    // This nested class creates expansions. It can have any name.
+    public class MyExpansions : UserExpansionScriptBase
+    {
+        string count => AutoVarName(); // explained below
+   }
+}
+
+///////////////// START OF CODE THAT COULD BE BUILT INTO STATE SMITH /////////////////
+
+// this is pretty hacked together, but it's a start for prototyping the idea.
 
 void GenerateSimpleSimulator()
 {
-    SmRunner runner = new(diagramPath: "LightSm.drawio.svg", transpilerId: TranspilerId.JavaScript);
+    SmRunner runner = new(diagramPath: DiagramPath, transpilerId: TranspilerId.JavaScript);
     AddPipelineStep(runner);
-    runner.Settings.outputDirectory = "LightSmSim";
+    runner.Settings.outputDirectory = simOutputDirectory;
     runner.Run();
+
+    GenerateSimulationStandaloneFiles();
 }
 
+void GenerateSimulationStandaloneFiles()
+{
+    File.WriteAllText($"{simOutputDirectory}/index.html", $$"""
+        <html>
+        <body>
+            Open web developer console to see the output of the code.
 
+            <div id="buttons-div"></div>
 
+            <script src="{{smName}}.js"></script>
+            <script>
+                const sm  = new {{smName}}();
+                const buttonsDiv = document.getElementById("buttons-div");
+
+                for (const eventName in {{smName}}.EventId) {
+                    if (Object.hasOwnProperty.call({{smName}}.EventId, eventName)) {
+                        const eventValue = {{smName}}.EventId[eventName];
+                        const button = document.createElement("button");
+                        button.innerText = eventName;
+                        button.onclick = () => {
+                            console.log(`=========== Dispatching event: ${eventName} ===========`);
+                            sm.dispatchEvent(eventValue);
+                        }
+                        buttonsDiv.appendChild(button);
+                    }
+                }
+
+                sm.start();
+            </script>
+        </body>
+        </html>
+        """
+    );
+}
 
 void AddPipelineStep(SmRunner runner)
 {
@@ -42,8 +101,7 @@ void AddPipelineStep(SmRunner runner)
                                                 new TransformationStep(id: "my custom step blah", ModForSimulation));
 }
 
-// This shows roughly how to inspect a state machine.
-// This same idea could be used to generate test scaffolding code or to generate documentation.
+// TODO - mod for simulation diagram when available. mermaid.js? cytoscape.js?
 void ModForSimulation(StateMachine sm)
 {
     BehaviorDescriber describer = new(singleLineFormat: true);
@@ -106,21 +164,4 @@ string EscapeFsmCode(string code)
 }
 
 
-public class LightSmRenderConfig : IRenderConfigC
-{
-    string IRenderConfigC.HFileTop => """
-        extern void println(char const * str);
-        extern void light_red();
-        extern void light_blue();
-        extern void light_yellow();
-    """;
-    string IRenderConfig.AutoExpandedVars => """
-        int count = 0; // variable for state machine
-        """;
 
-    // This nested class creates expansions. It can have any name.
-    public class MyExpansions : UserExpansionScriptBase
-    {
-        string count => AutoVarName(); // explained below
-   }
-}
