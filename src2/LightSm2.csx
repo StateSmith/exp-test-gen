@@ -1,7 +1,7 @@
 #!/usr/bin/env dotnet-script
 // This is a c# script file
 
-#r "nuget: StateSmith, 0.9.13-alpha-tracking-expander-2" // this line specifies which version of StateSmith to use and download from c# nuget web service.
+#r "nuget: StateSmith, 0.9.13-alpha"
 
 using StateSmith.Common;
 using StateSmith.Input.Expansions;
@@ -45,7 +45,9 @@ public class LightSmRenderConfig : IRenderConfigC
    }
 }
 
+
 ///////////////// START OF CODE THAT COULD BE BUILT INTO STATE SMITH /////////////////
+
 
 // this is pretty hacked together, but it's a start for prototyping the idea.
 
