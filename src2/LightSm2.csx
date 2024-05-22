@@ -1,6 +1,4 @@
 #!/usr/bin/env dotnet-script
-// This is a c# script file
-
 #r "nuget: StateSmith, 0.9.13-alpha"
 
 using StateSmith.Common;
@@ -8,10 +6,6 @@ using StateSmith.Input.Expansions;
 using StateSmith.Output.UserConfig;
 using StateSmith.Runner;
 using StateSmith.SmGraph;  // Note using! This is required to access StateMachine and NamedVertex classes...
-
-public StringBuilder imports = new();
-public StringBuilder mocks = new();
-public StringBuilder tests = new();
 
 const string smName = "LightSm2"; // this would normally be detected, not hard coded.
 const string simOutputDirectory = $"{smName}Sim";
