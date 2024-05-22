@@ -4,14 +4,14 @@
 
     <div id="buttons-div"></div>
 
-    <script src="LightSm.js"></script>
+    <script src="LightSm2.js"></script>
     <script>
-        const sm  = new LightSm();
+        const sm  = new LightSm2();
         const buttonsDiv = document.getElementById("buttons-div");
 
-        for (const eventName in LightSm.EventId) {
-            if (Object.hasOwnProperty.call(LightSm.EventId, eventName)) {
-                const eventValue = LightSm.EventId[eventName];
+        for (const eventName in LightSm2.EventId) {
+            if (Object.hasOwnProperty.call(LightSm2.EventId, eventName)) {
+                const eventValue = LightSm2.EventId[eventName];
                 const button = document.createElement("button");
                 button.innerText = eventName;
                 button.onclick = () => {

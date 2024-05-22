@@ -3,6 +3,7 @@
 
 #r "nuget: StateSmith, 0.9.13-alpha-tracking-expander-2" // this line specifies which version of StateSmith to use and download from c# nuget web service.
 
+using StateSmith.Common;
 using StateSmith.Input.Expansions;
 using StateSmith.Output.UserConfig;
 using StateSmith.Runner;
@@ -12,9 +13,9 @@ public StringBuilder imports = new();
 public StringBuilder mocks = new();
 public StringBuilder tests = new();
 
-const string smName = "LightSm"; // this would normally be detected, not hard coded.
-const string simOutputDirectory = smName + "Sim";
-private const string DiagramPath = "LightSm.drawio.svg";
+const string smName = "LightSm2"; // this would normally be detected, not hard coded.
+const string simOutputDirectory = $"{smName}Sim";
+private const string DiagramPath = "LightSm2.drawio.svg";
 
 GenerateC99Code();
 GenerateSimpleSimulator();
@@ -50,9 +51,8 @@ public class LightSmRenderConfig : IRenderConfigC
 
 void GenerateSimpleSimulator()
 {
-    SmRunner runner = new(diagramPath: DiagramPath, transpilerId: TranspilerId.JavaScript);
+    SmRunner runner = new(diagramPath: DiagramPath, transpilerId: TranspilerId.JavaScript, outputDirectory: simOutputDirectory);
     AddPipelineStep(runner);
-    runner.Settings.outputDirectory = simOutputDirectory;
     runner.Run();
 
     GenerateSimulationStandaloneFiles();
@@ -60,7 +60,7 @@ void GenerateSimpleSimulator()
 
 void GenerateSimulationStandaloneFiles()
 {
-    File.WriteAllText($"{simOutputDirectory}/index.html", $$"""
+    File.WriteAllText($"{PathUtils.GetThisDir()}/{simOutputDirectory}/index.html", $$"""
         <html>
         <body>
             Open web developer console to see the output of the code.
@@ -104,58 +104,67 @@ void AddPipelineStep(SmRunner runner)
 // TODO - mod for simulation diagram when available. mermaid.js? cytoscape.js?
 void ModForSimulation(StateMachine sm)
 {
-    BehaviorDescriber describer = new(singleLineFormat: true);
-    
     sm.VisitRecursively((Vertex vertex) =>
     {
         foreach (var behavior in vertex.Behaviors)
         {
-            if (behavior.HasActionCode())
-            {
-                if (behavior.actionCode.Contains("$gil("))
-                {
-                    // keep actual code
-                    behavior.actionCode += $"""console.log("Executed action: " + {EscapeFsmCode(behavior.actionCode)});""";
-                }
-                else
-                {
-                    // we don't want to execute the action, just log it.
-                    behavior.actionCode = $"""console.log("FSM would execute action: " + {EscapeFsmCode(behavior.actionCode)});""";
-                }
-            }
-
-            if (vertex is HistoryVertex)
-            {
-                if (behavior.HasGuardCode())
-                {
-                    // we want the history vertex to work as is without prompting the user to evaluate guard.
-                    var logCode = $"""console.log("History state evaluating guard: " + {EscapeFsmCode(behavior.guardCode)})""";
-                    var actualCode = behavior.guardCode;
-                    behavior.guardCode = $"""{logCode} || {actualCode}""";
-                }
-                else
-                {
-                    behavior.actionCode += $"""console.log("History state taking default transition.");""";
-                }
-            }
-            else
-            {
-                if (behavior.HasGuardCode())
-                {
-                    var logCode = $"""console.log("User evaluating guard: " + {EscapeFsmCode(behavior.guardCode)})""";
-                    var confirmCode = $"""window.confirm("Evaluate guard: " + {EscapeFsmCode(behavior.guardCode)})""";
-                    behavior.guardCode = $"""{logCode} || {confirmCode}""";
-                    // NOTE! console logging doesn't return a value, so the confirm code will always be evaluated.
-                }
-            }
+            ModBehaviorsForSimulation(vertex, behavior);
         }
 
-        if (vertex is NamedVertex namedVertex)
-        {
-            namedVertex.AddEnterAction($"console.log(\"Entered {namedVertex.Name}.\");", index: 0);
-            namedVertex.AddExitAction($"console.log(\"Exited {namedVertex.Name}.\");");
-        }
+        AddEntryExitTracing(vertex);
     });
+}
+
+static void AddEntryExitTracing(Vertex vertex)
+{
+    if (vertex is NamedVertex namedVertex)
+    {
+        namedVertex.AddEnterAction($"console.log(\"Entered {namedVertex.Name}.\");", index: 0);
+        namedVertex.AddExitAction($"console.log(\"Exited {namedVertex.Name}.\");");
+    }
+}
+
+void ModBehaviorsForSimulation(Vertex vertex, Behavior behavior)
+{
+    if (behavior.HasActionCode())
+    {
+        // GIL is Generic Intermediary Language. It is used by history vertices and other special cases.
+        if (behavior.actionCode.Contains("$gil("))
+        {
+            // keep actual code
+            behavior.actionCode += $"""console.log("Executed action: " + {EscapeFsmCode(behavior.actionCode)});""";
+        }
+        else
+        {
+            // we don't want to execute the action, just log it.
+            behavior.actionCode = $"""console.log("FSM would execute action: " + {EscapeFsmCode(behavior.actionCode)});""";
+        }
+    }
+
+    if (vertex is HistoryVertex)
+    {
+        if (behavior.HasGuardCode())
+        {
+            // we want the history vertex to work as is without prompting the user to evaluate those guards.
+            var logCode = $"""console.log("History state evaluating guard: " + {EscapeFsmCode(behavior.guardCode)})""";
+            var actualCode = behavior.guardCode;
+            behavior.guardCode = $"""{logCode} || {actualCode}""";
+        }
+        else
+        {
+            behavior.actionCode += $"""console.log("History state taking default transition.");""";
+        }
+    }
+    else
+    {
+        if (behavior.HasGuardCode())
+        {
+            var logCode = $"""console.log("User evaluating guard: " + {EscapeFsmCode(behavior.guardCode)})""";
+            var confirmCode = $"""window.confirm("Evaluate guard: " + {EscapeFsmCode(behavior.guardCode)})""";
+            behavior.guardCode = $"""{logCode} || {confirmCode}""";
+            // NOTE! console logging doesn't return a value, so the confirm code will always be evaluated.
+        }
+    }
 }
 
 string EscapeFsmCode(string code)
