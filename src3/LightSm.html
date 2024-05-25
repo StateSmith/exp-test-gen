@@ -1,0 +1,86 @@
+<html>
+  <body>
+
+    <button id="button_ESCAPE">ESCAPE</button>
+<button id="button_EV1">EV1</button>
+<button id="button_EV2">EV2</button>
+<button id="button_EV3">EV3</button>
+
+
+    <pre class="mermaid">
+stateDiagram
+classDef active fill:yellow,stroke-width:2px;
+state ORDER_MENU {
+        state BEVERAGE {
+                [*] --> BEVERAGE.(InitialState)
+                state "$initial_state" as BEVERAGE.(InitialState)
+                WATER
+                WATER : WATER
+                COFFEE
+                COFFEE : COFFEE
+                COFFEE : enter / #123; do_x()#59; #125;
+                TEA
+                TEA : TEA
+        }
+        state FOOD {
+                [*] --> FOOD.(InitialState)
+                state "$initial_state" as FOOD.(InitialState)
+                JUNK
+                JUNK : JUNK
+                POTATO
+                POTATO : POTATO
+                SUSHI
+                SUSHI : SUSHI
+        }
+        state "$entry_pt.to_history" as ORDER_MENU.(EntryPoint)(to_history)
+        state "$exit_pt.1" as ORDER_MENU.(ExitPoint)(1)
+        state "$H" as ORDER_MENU.(History)
+        state ORDER_MENU.(ChoicePoint)(bev_choice) <<choice>>
+}
+WAITING
+WAITING : WAITING
+[*] --> ROOT.(InitialState)
+state "$initial_state" as ROOT.(InitialState)
+ORDER_MENU --> WAITING : EV3
+BEVERAGE --> FOOD : EV2
+BEVERAGE.(InitialState) --> WATER : 
+WATER --> COFFEE : EV1
+COFFEE --> TEA : EV1
+TEA --> COFFEE : EV1
+TEA --> BEVERAGE.(InitialState) : EV2
+FOOD --> ORDER_MENU.(ChoicePoint)(bev_choice) : EV2
+FOOD --> ORDER_MENU.(ExitPoint)(1) : ESCAPE
+FOOD.(InitialState) --> JUNK : 
+JUNK --> POTATO : EV1
+POTATO --> SUSHI : EV1
+SUSHI --> JUNK : EV1
+ORDER_MENU.(EntryPoint)(to_history) --> ORDER_MENU.(History) : 
+ORDER_MENU.(ExitPoint)(1) --> WAITING : 
+ORDER_MENU.(ChoicePoint)(bev_choice) --> TEA : [a > b]
+ORDER_MENU.(ChoicePoint)(bev_choice) --> BEVERAGE : else
+WAITING --> ORDER_MENU.(EntryPoint)(to_history) : EV3
+ROOT.(InitialState) --> WAITING : 
+
+
+    </pre>
+
+    <script src="LightSm.js"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: false });
+        await mermaid.run();
+
+        var sm = new LightSm();
+
+        document.getElementById('button_ESCAPE').addEventListener('click', () => sm.dispatchEvent(LightSm.EventId.ESCAPE), false);
+document.getElementById('button_EV1').addEventListener('click', () => sm.dispatchEvent(LightSm.EventId.EV1), false);
+document.getElementById('button_EV2').addEventListener('click', () => sm.dispatchEvent(LightSm.EventId.EV2), false);
+document.getElementById('button_EV3').addEventListener('click', () => sm.dispatchEvent(LightSm.EventId.EV3), false);
+
+
+        sm.start();
+    </script>
+
+
+  </body>
+</html>
