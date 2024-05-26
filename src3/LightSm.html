@@ -1,11 +1,7 @@
 <html>
   <body>
 
-    <button id="button_ESCAPE">ESCAPE</button>
-<button id="button_EV1">EV1</button>
-<button id="button_EV2">EV2</button>
-<button id="button_EV3">EV3</button>
-
+    
 
     <pre class="mermaid">
 stateDiagram
@@ -21,6 +17,7 @@ state ORDER_MENU {
                 COFFEE : enter / #123; do_x()#59; #125;
                 TEA
                 TEA : TEA
+                state "$HC" as BEVERAGE.(HistoryContinue)
         }
         state FOOD {
                 [*] --> FOOD.(InitialState)
@@ -42,6 +39,7 @@ WAITING : WAITING
 [*] --> ROOT.(InitialState)
 state "$initial_state" as ROOT.(InitialState)
 ORDER_MENU --> WAITING : EV3
+ORDER_MENU --> WAITING : via exit 1
 BEVERAGE --> FOOD : EV2
 BEVERAGE.(InitialState) --> WATER : 
 WATER --> COFFEE : EV1
@@ -55,10 +53,10 @@ JUNK --> POTATO : EV1
 POTATO --> SUSHI : EV1
 SUSHI --> JUNK : EV1
 ORDER_MENU.(EntryPoint)(to_history) --> ORDER_MENU.(History) : 
-ORDER_MENU.(ExitPoint)(1) --> WAITING : 
+ORDER_MENU.(History) --> BEVERAGE : 
 ORDER_MENU.(ChoicePoint)(bev_choice) --> TEA : [a > b]
 ORDER_MENU.(ChoicePoint)(bev_choice) --> BEVERAGE : else
-WAITING --> ORDER_MENU.(EntryPoint)(to_history) : EV3
+WAITING --> ORDER_MENU : EV3 via entry to_history
 ROOT.(InitialState) --> WAITING : 
 
 
@@ -72,11 +70,7 @@ ROOT.(InitialState) --> WAITING :
 
         var sm = new LightSm();
 
-        document.getElementById('button_ESCAPE').addEventListener('click', () => sm.dispatchEvent(LightSm.EventId.ESCAPE), false);
-document.getElementById('button_EV1').addEventListener('click', () => sm.dispatchEvent(LightSm.EventId.EV1), false);
-document.getElementById('button_EV2').addEventListener('click', () => sm.dispatchEvent(LightSm.EventId.EV2), false);
-document.getElementById('button_EV3').addEventListener('click', () => sm.dispatchEvent(LightSm.EventId.EV3), false);
-
+        
 
         sm.start();
     </script>

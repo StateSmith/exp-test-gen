@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 TextWriter mermaidCodeWriter = new StringWriter();
 SmRunner htmlRunner = new(diagramPath: "LightSm.drawio.svg", new LightSmRenderConfig(), transpilerId: TranspilerId.JavaScript);
 htmlRunner.SmTransformer.InsertBeforeFirstMatch(
-    StandardSmTransformer.TransformationId.Standard_FinalValidation,
+    StandardSmTransformer.TransformationId.Standard_RemoveNotesVertices,
     new TransformationStep(id: "some string id", action: (sm) =>
     {
         // var visitor = new MermaidGenerator(mermaidCodeWriter);
@@ -160,15 +160,7 @@ class MermaidVisitor2 : IVertexVisitor
         foreach (var b in v.Behaviors.Where(b => b.TransitionTarget == null))
         {
             string text = b.ToString();
-
-            // HACK: don't show history tracking stuff like `enter / { $gil(this.vars.ORDER_MENU_history = ORDER_MENU_HistoryId.COFFEE;) }`
-            // We probably want to disable the history tracking transformation step instead of this hack.
-            // It would show the default history transition then.
-            if (text.Contains("$gil(") && text.Contains("_history"))
-                continue;
-
             text = MermaidEscape(text);
-
             AppendLn($"{name} : {text}");
         }
     }
@@ -203,9 +195,6 @@ class MermaidVisitor2 : IVertexVisitor
 
     public void Visit(HistoryContinueVertex v)
     {
-        // NOTE: this doesn't actually get used because the $HC vertex was processed and removed from the graph
-        // by a transformation step. We may want to keep it in the graph by disabling the transformation.
-        // Let's discuss.
         AppendLn($"""state "$HC" as {MakeVertexDiagramId(v)}""");
     }
 
@@ -214,9 +203,6 @@ class MermaidVisitor2 : IVertexVisitor
     {
         sm.VisitRecursively((Vertex v) =>
         {
-            if (v is HistoryVertex)
-                return; // renders way too many edges
-
             string vertexDiagramId = MakeVertexDiagramId(v);
 
             foreach (var behavior in v.Behaviors)
