@@ -187,12 +187,13 @@ class LightSm
         // No ancestor state handles `ev3` event.
         
         // ORDER_MENU behavior
-        // uml: EV3 TransitionTo(WAITING)
+        // uml: EV3 / { console.log(document.getElementById("edge3"));document.getElementById("edge3").style.stroke = "red"; } TransitionTo(WAITING)
         {
             // Step 1: Exit states until we reach `ROOT` state (Least Common Ancestor for transition).
             this.#exitUpToStateHandler(this.#ROOT_exit);
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge3"));document.getElementById("edge3").style.stroke = "red";`.
+            console.log(document.getElementById("edge3"));document.getElementById("edge3").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `WAITING`.
             this.#WAITING_enter();
@@ -263,12 +264,13 @@ class LightSm
         // No ancestor state handles `ev2` event.
         
         // BEVERAGE behavior
-        // uml: EV2 TransitionTo(FOOD)
+        // uml: EV2 / { console.log(document.getElementById("edge5"));document.getElementById("edge5").style.stroke = "red"; } TransitionTo(FOOD)
         {
             // Step 1: Exit states until we reach `ORDER_MENU` state (Least Common Ancestor for transition).
             this.#exitUpToStateHandler(this.#ORDER_MENU_exit);
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge5"));document.getElementById("edge5").style.stroke = "red";`.
+            console.log(document.getElementById("edge5"));document.getElementById("edge5").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `FOOD`.
             this.#FOOD_enter();
@@ -324,10 +326,10 @@ class LightSm
         } // end of behavior for COFFEE
         
         // COFFEE behavior
-        // uml: enter / { do_x(); }
+        // uml: enter / { /*do_x();*/ }
         {
-            // Step 1: execute action `do_x();`
-            do_x();
+            // Step 1: execute action `/*do_x();*/`
+            /*do_x();*/
         } // end of behavior for COFFEE
         
         // COFFEE behavior
@@ -364,12 +366,13 @@ class LightSm
         // No ancestor state handles `ev1` event.
         
         // COFFEE behavior
-        // uml: EV1 TransitionTo(TEA)
+        // uml: EV1 / { console.log(document.getElementById("edge8"));document.getElementById("edge8").style.stroke = "red"; } TransitionTo(TEA)
         {
             // Step 1: Exit states until we reach `BEVERAGE` state (Least Common Ancestor for transition).
             this.#COFFEE_exit();
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge8"));document.getElementById("edge8").style.stroke = "red";`.
+            console.log(document.getElementById("edge8"));document.getElementById("edge8").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `TEA`.
             this.#TEA_enter();
@@ -442,12 +445,13 @@ class LightSm
         // No ancestor state handles `ev1` event.
         
         // TEA behavior
-        // uml: EV1 TransitionTo(COFFEE)
+        // uml: EV1 / { console.log(document.getElementById("edge9"));document.getElementById("edge9").style.stroke = "red"; } TransitionTo(COFFEE)
         {
             // Step 1: Exit states until we reach `BEVERAGE` state (Least Common Ancestor for transition).
             this.#TEA_exit();
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge9"));document.getElementById("edge9").style.stroke = "red";`.
+            console.log(document.getElementById("edge9"));document.getElementById("edge9").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `COFFEE`.
             this.#COFFEE_enter();
@@ -465,12 +469,13 @@ class LightSm
         this.#ancestorEventHandler = this.#BEVERAGE_ev2;
         
         // TEA behavior
-        // uml: EV2 TransitionTo(BEVERAGE.<InitialState>)
+        // uml: EV2 / { console.log(document.getElementById("edge10"));document.getElementById("edge10").style.stroke = "red"; } TransitionTo(BEVERAGE.<InitialState>)
         {
             // Step 1: Exit states until we reach `BEVERAGE` state (Least Common Ancestor for transition).
             this.#TEA_exit();
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge10"));document.getElementById("edge10").style.stroke = "red";`.
+            console.log(document.getElementById("edge10"));document.getElementById("edge10").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `BEVERAGE.<InitialState>`.
             // BEVERAGE.<InitialState> is a pseudo state and cannot have an `enter` trigger.
@@ -540,12 +545,13 @@ class LightSm
         // No ancestor state handles `ev1` event.
         
         // WATER behavior
-        // uml: EV1 TransitionTo(COFFEE)
+        // uml: EV1 / { console.log(document.getElementById("edge7"));document.getElementById("edge7").style.stroke = "red"; } TransitionTo(COFFEE)
         {
             // Step 1: Exit states until we reach `BEVERAGE` state (Least Common Ancestor for transition).
             this.#WATER_exit();
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge7"));document.getElementById("edge7").style.stroke = "red";`.
+            console.log(document.getElementById("edge7"));document.getElementById("edge7").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `COFFEE`.
             this.#COFFEE_enter();
@@ -618,12 +624,13 @@ class LightSm
         // No ancestor state handles `escape` event.
         
         // FOOD behavior
-        // uml: ESCAPE TransitionTo(ORDER_MENU.<ExitPoint>(1))
+        // uml: ESCAPE / { console.log(document.getElementById("edge12"));document.getElementById("edge12").style.stroke = "red"; } TransitionTo(ORDER_MENU.<ExitPoint>(1))
         {
             // Step 1: Exit states until we reach `ORDER_MENU` state (Least Common Ancestor for transition).
             this.#exitUpToStateHandler(this.#ORDER_MENU_exit);
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge12"));document.getElementById("edge12").style.stroke = "red";`.
+            console.log(document.getElementById("edge12"));document.getElementById("edge12").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `ORDER_MENU.<ExitPoint>(1)`.
             // ORDER_MENU.<ExitPoint>(1) is a pseudo state and cannot have an `enter` trigger.
@@ -652,12 +659,13 @@ class LightSm
         // No ancestor state handles `ev2` event.
         
         // FOOD behavior
-        // uml: EV2 TransitionTo(ORDER_MENU.<ChoicePoint>(bev_choice))
+        // uml: EV2 / { console.log(document.getElementById("edge11"));document.getElementById("edge11").style.stroke = "red"; } TransitionTo(ORDER_MENU.<ChoicePoint>(bev_choice))
         {
             // Step 1: Exit states until we reach `ORDER_MENU` state (Least Common Ancestor for transition).
             this.#exitUpToStateHandler(this.#ORDER_MENU_exit);
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge11"));document.getElementById("edge11").style.stroke = "red";`.
+            console.log(document.getElementById("edge11"));document.getElementById("edge11").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `ORDER_MENU.<ChoicePoint>(bev_choice)`.
             // ORDER_MENU.<ChoicePoint>(bev_choice) is a pseudo state and cannot have an `enter` trigger.
@@ -768,12 +776,13 @@ class LightSm
         // No ancestor state handles `ev1` event.
         
         // JUNK behavior
-        // uml: EV1 TransitionTo(POTATO)
+        // uml: EV1 / { console.log(document.getElementById("edge14"));document.getElementById("edge14").style.stroke = "red"; } TransitionTo(POTATO)
         {
             // Step 1: Exit states until we reach `FOOD` state (Least Common Ancestor for transition).
             this.#JUNK_exit();
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge14"));document.getElementById("edge14").style.stroke = "red";`.
+            console.log(document.getElementById("edge14"));document.getElementById("edge14").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `POTATO`.
             this.#POTATO_enter();
@@ -837,12 +846,13 @@ class LightSm
         // No ancestor state handles `ev1` event.
         
         // POTATO behavior
-        // uml: EV1 TransitionTo(SUSHI)
+        // uml: EV1 / { console.log(document.getElementById("edge15"));document.getElementById("edge15").style.stroke = "red"; } TransitionTo(SUSHI)
         {
             // Step 1: Exit states until we reach `FOOD` state (Least Common Ancestor for transition).
             this.#POTATO_exit();
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge15"));document.getElementById("edge15").style.stroke = "red";`.
+            console.log(document.getElementById("edge15"));document.getElementById("edge15").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `SUSHI`.
             this.#SUSHI_enter();
@@ -906,12 +916,13 @@ class LightSm
         // No ancestor state handles `ev1` event.
         
         // SUSHI behavior
-        // uml: EV1 TransitionTo(JUNK)
+        // uml: EV1 / { console.log(document.getElementById("edge16"));document.getElementById("edge16").style.stroke = "red"; } TransitionTo(JUNK)
         {
             // Step 1: Exit states until we reach `FOOD` state (Least Common Ancestor for transition).
             this.#SUSHI_exit();
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge16"));document.getElementById("edge16").style.stroke = "red";`.
+            console.log(document.getElementById("edge16"));document.getElementById("edge16").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `JUNK`.
             this.#JUNK_enter();
@@ -975,12 +986,13 @@ class LightSm
         // No ancestor state handles `ev3` event.
         
         // WAITING behavior
-        // uml: EV3 TransitionTo(ORDER_MENU.<EntryPoint>(to_history))
+        // uml: EV3 / { console.log(document.getElementById("edge21"));document.getElementById("edge21").style.stroke = "red"; } TransitionTo(ORDER_MENU.<EntryPoint>(to_history))
         {
             // Step 1: Exit states until we reach `ROOT` state (Least Common Ancestor for transition).
             this.#WAITING_exit();
             
-            // Step 2: Transition action: ``.
+            // Step 2: Transition action: `console.log(document.getElementById("edge21"));document.getElementById("edge21").style.stroke = "red";`.
+            console.log(document.getElementById("edge21"));document.getElementById("edge21").style.stroke = "red";
             
             // Step 3: Enter/move towards transition target `ORDER_MENU.<EntryPoint>(to_history)`.
             this.#ORDER_MENU_enter();

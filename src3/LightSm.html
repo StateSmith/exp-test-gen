@@ -14,7 +14,7 @@ state ORDER_MENU {
                 WATER : WATER
                 COFFEE
                 COFFEE : COFFEE
-                COFFEE : enter / #123; do_x()#59; #125;
+                COFFEE : enter / #123; /*do_x()#59;*/ #125;
                 TEA
                 TEA : TEA
                 state "$HC" as BEVERAGE.(HistoryContinue)
@@ -73,6 +73,11 @@ ROOT.(InitialState) --> WAITING :
         
 
         sm.start();
+        // hack to show some transitions. Initial transition still not picked up yet.
+        sm.dispatchEvent(LightSm.EventId.EV3);
+        sm.dispatchEvent(LightSm.EventId.EV1);
+        sm.dispatchEvent(LightSm.EventId.EV1);
+        sm.dispatchEvent(LightSm.EventId.EV3);
     </script>
   </body>
 </html>

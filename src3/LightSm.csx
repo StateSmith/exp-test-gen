@@ -13,39 +13,71 @@ using StateSmith.SmGraph.Visitors;
 using StateSmith.Common;
 using System.Text.RegularExpressions;
 
-TextWriter mermaidCodeWriter = new StringWriter();
-SmRunner htmlRunner = new(diagramPath: "LightSm.drawio.svg", new LightSmRenderConfig(), transpilerId: TranspilerId.JavaScript);
-htmlRunner.SmTransformer.InsertBeforeFirstMatch(
-    StandardSmTransformer.TransformationId.Standard_RemoveNotesVertices,
-    new TransformationStep(id: "some string id", action: (sm) =>
+// Mermaid code generation visits the graph first. It can record the id of each transition/edge.
+
+
+public class EdgeOrderTracker
+{
+    Dictionary<Behavior, int> edgeIdMap = new();
+    int nextId = 0;
+
+    public int AddEdge(Behavior b)
     {
-        // var visitor = new MermaidGenerator(mermaidCodeWriter);
-        var visitor2 = new MermaidVisitor2();
-        visitor2.RenderAll(sm);
-        mermaidCodeWriter.WriteLine(visitor2.GetMermaidCode());
-        List<string> events = GetNonDoEvents(sm);
-        events = events.ConvertAll(e => e.ToUpper()); // TODO what is the right way to get the event name in the proper case?
-        StringWriter buttonCodeWriter = new StringWriter();
-        StringWriter eventsCodeWriter = new StringWriter();
-        foreach(var e in events) {
-            buttonCodeWriter.WriteLine($"<button id=\"button_{e}\">{e}</button>"); // TODO will this handle special chars in event names?
-            eventsCodeWriter.WriteLine($"document.getElementById('button_{e}').addEventListener('click', () => sm.dispatchEvent({sm.Name}.EventId.{e}), false);");
-        }
-        using(StreamWriter htmlWriter = new StreamWriter($"{sm.Name}.html")) {
-            PrintHtml(htmlWriter,sm, buttonCodeWriter.ToString(), mermaidCodeWriter.ToString()!, eventsCodeWriter.ToString());
-        }
-    }));
-htmlRunner.Run();
+        int id = nextId;
+        AdvanceId();
+        edgeIdMap.Add(b, id);
+        return id;
+    }
+
+    // use for when a non-behavior edge is added
+    public int AdvanceId()
+    {
+        return nextId++;
+    }
+
+    public bool ContainsEdge(Behavior b)
+    {
+        return edgeIdMap.ContainsKey(b);
+    }
+
+    public int GetEdgeId(Behavior b)
+    {
+        return edgeIdMap[b];
+    }
+}
 
 
-// HACK order is important, the jsRunner must run after the htmlRunner, because the htmlRunner
-// also generate js (but without the logging transforms), and the jsRunner must be the last to write
+
+EdgeOrderTracker edgeOrderTracker = new();
+
+TextWriter mermaidCodeWriter = new StringWriter();
+
+// We need to run two transformation steps inside a single runner.
 SmRunner jsRunner = new(diagramPath: "LightSm.drawio.svg", new LightSmRenderConfig(), transpilerId: TranspilerId.JavaScript);
-jsRunner.SmTransformer.InsertBeforeFirstMatch(StandardSmTransformer.TransformationId.Standard_Validation1, 
-                                            new TransformationStep(id: "my custom step blah", LoggingTransformationStep));
+jsRunner.Settings.propagateExceptions = true;
+jsRunner.SmTransformer.InsertBeforeFirstMatch(StandardSmTransformer.TransformationId.Standard_RemoveNotesVertices, new TransformationStep(id: "some string id", GenerateMermaidCode));
+jsRunner.SmTransformer.InsertBeforeFirstMatch(StandardSmTransformer.TransformationId.Standard_Validation1, new TransformationStep(id: "my custom step blah", LoggingTransformationStep));
 jsRunner.Run();
 
 
+
+void GenerateMermaidCode(StateMachine sm)
+{
+    var visitor2 = new MermaidVisitor2(edgeOrderTracker);
+    visitor2.RenderAll(sm);
+    mermaidCodeWriter.WriteLine(visitor2.GetMermaidCode());
+    List<string> events = GetNonDoEvents(sm);
+    events = events.ConvertAll(e => e.ToUpper()); // TODO what is the right way to get the event name in the proper case?
+    StringWriter buttonCodeWriter = new StringWriter();
+    StringWriter eventsCodeWriter = new StringWriter();
+    foreach(var e in events) {
+        buttonCodeWriter.WriteLine($"<button id=\"button_{e}\">{e}</button>"); // TODO will this handle special chars in event names?
+        eventsCodeWriter.WriteLine($"document.getElementById('button_{e}').addEventListener('click', () => sm.dispatchEvent({sm.Name}.EventId.{e}), false);");
+    }
+    using(StreamWriter htmlWriter = new StreamWriter($"{sm.Name}.html")) {
+        PrintHtml(htmlWriter,sm, buttonCodeWriter.ToString(), mermaidCodeWriter.ToString()!, eventsCodeWriter.ToString());
+    }
+}
 
 void PrintHtml(TextWriter writer,  StateMachine sm, string buttonCode, string mermaidCode, string eventsCode) {
 
@@ -70,6 +102,11 @@ void PrintHtml(TextWriter writer,  StateMachine sm, string buttonCode, string me
         {{eventsCode}}
 
         sm.start();
+        // hack to show some transitions. Initial transition still not picked up yet.
+        sm.dispatchEvent(LightSm.EventId.EV3);
+        sm.dispatchEvent(LightSm.EventId.EV1);
+        sm.dispatchEvent(LightSm.EventId.EV1);
+        sm.dispatchEvent(LightSm.EventId.EV3);
     </script>
   </body>
 </html>
@@ -99,6 +136,14 @@ void LoggingTransformationStep(StateMachine sm)
         // TODO how to handle escaping state names
         state.AddEnterAction($"document.querySelector('g[data-id={state.Name}]')?.classList.add('active');", index:0); // use index to insert at start
         state.AddExitAction($"document.querySelector('g[data-id={state.Name}]')?.classList.remove('active');");
+
+        foreach (var b in state.TransitionBehaviors())
+        {
+            var domId = "edge" + edgeOrderTracker.GetEdgeId(b);
+            // NOTE! Avoid single quotes in ss code until bug fixed: https://github.com/StateSmith/StateSmith/issues/282
+            b.actionCode += $"""console.log(document.getElementById("{domId}"));""";
+            b.actionCode += $"""document.getElementById("{domId}").style.stroke = "red";"""; // or something like this
+        }
     });
 }
 
@@ -109,6 +154,12 @@ class MermaidVisitor2 : IVertexVisitor
 {
     int indentLevel = 0;
     StringBuilder sb = new();
+    EdgeOrderTracker edgeOrderTracker;
+
+    public MermaidVisitor2(EdgeOrderTracker edgeOrderTracker)
+    {
+        this.edgeOrderTracker = edgeOrderTracker;
+    }
 
     public void RenderAll(StateMachine sm)
     {
@@ -168,6 +219,7 @@ class MermaidVisitor2 : IVertexVisitor
         string initialStateId = MakeVertexDiagramId(initialState);
 
         AppendLn($"[*] --> {initialStateId}");
+        edgeOrderTracker.AdvanceId();  // we skip this "work around" edge for now. We can improve this later.
         AppendLn($"""state "$initial_state" as {initialStateId}""");
     }
 
@@ -211,6 +263,7 @@ class MermaidVisitor2 : IVertexVisitor
                     text = Regex.Replace(text, @"\s*TransitionTo[(].*[)]", ""); // bit of a hack to remove the `TransitionTo(SOME_STATE)` text
                     text = MermaidEscape(text);
                     sb.AppendLine($"{vertexDiagramId} --> {MakeVertexDiagramId(behavior.TransitionTarget)} : {text}");
+                    edgeOrderTracker.AddEdge(behavior);
                 }
             }
         });
